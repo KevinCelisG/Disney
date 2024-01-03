@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Disney</string>
+    <string name="emptyList">No characters</string>
 </resources>
