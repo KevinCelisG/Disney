@@ -14,12 +14,12 @@ class LandingViewModel @Inject constructor(private val getCharactersUseCase: Get
     ViewModel() {
 
     var isLoading = MutableLiveData<Boolean>()
-    var listCharacters = MutableLiveData<Result<List<Character>>>()
+    var listCharactersMutable = MutableLiveData<Result<List<Character>>>()
 
     fun loadCharacters() {
         viewModelScope.launch {
             isLoading.postValue(true)
-            listCharacters.postValue(getCharactersUseCase.invoke())
+            listCharactersMutable.postValue(getCharactersUseCase.invoke())
             isLoading.postValue(false)
         }
     }

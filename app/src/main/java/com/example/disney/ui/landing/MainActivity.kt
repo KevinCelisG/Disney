@@ -3,22 +3,22 @@ package com.example.disney.ui.landing
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import android.widget.AbsListView.OnScrollListener
 import androidx.activity.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.disney.R
 import com.example.disney.databinding.ActivityMainBinding
 import com.example.disney.domain.adapter.DisneyAdapter
 import com.example.disney.domain.model.Character
 import dagger.hilt.android.AndroidEntryPoint
-import dagger.hilt.android.HiltAndroidApp
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: DisneyAdapter
+
     private val landingViewModel: LandingViewModel by viewModels()
+    private var listCharacters = mutableListOf<Character>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,15 +27,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         loadCharacters()
+        initRecyclerView(listCharacters)
 
         landingViewModel.isLoading.observe(this) {
             binding.progressBar.visibility = if (it) View.VISIBLE else View.INVISIBLE
         }
 
-        landingViewModel.listCharacters.observe(this) {
+        landingViewModel.listCharactersMutable.observe(this) {
             it.onSuccess { characters ->
                 binding.textViewMessage.visibility = View.INVISIBLE
-                initRecyclerView(characters)
+                listCharacters.addAll(characters)
+                updateData()
             }.onFailure { binding.textViewMessage.visibility = View.VISIBLE }
         }
 
@@ -50,8 +52,13 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    private fun updateData() {
+        adapter.setDisneyCharacters(listCharacters)
+        binding.recyclerViewCharacters.adapter?.notifyDataSetChanged()
+    }
+
     private fun initRecyclerView(characters: List<Character>) {
-        val adapter = DisneyAdapter(characters)
+        adapter = DisneyAdapter(characters)
         binding.recyclerViewCharacters.layoutManager = LinearLayoutManager(this)
         binding.recyclerViewCharacters.adapter = adapter
     }
